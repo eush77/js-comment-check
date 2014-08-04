@@ -1,0 +1,37 @@
+{
+  "name": "js-comment-check",
+  "version": "0.1.0",
+  "description": "Does to your comments the same as linters do to your code",
+  "author": "Eugene Sharygin <eush77@gmail.com>",
+  "license": "MIT",
+
+  "main": "src/comment-check.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+
+  "homepage": "https://github.com/eush77/js-comment-check",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eush77/js-comment-check.git"
+  },
+  "bugs": {
+    "url": "https://github.com/eush77/js-comment-check/issues"
+  },
+  "keywords": [
+    "comment",
+    "comments",
+    "check",
+    "analysis",
+    "lint",
+    "format",
+    "style",
+    "orthography",
+    "spelling",
+    "punctuation"
+  ],
+
+  "dependencies": {
+    "esprima": "^1.2.2"
+  }
+}
