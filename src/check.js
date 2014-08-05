@@ -1,20 +1,13 @@
-var RULES = require('./rules/rules.json');
-
-
 /**
- * Load rule by name.
- *
- * @arg {string} name - Rule name.
- * @return {function}
+ * List of rules to apply.
+ * @readonly
  */
-var loadRule = function (name) {
-  return require('./rules/' + name);
-};
-
-
-RULES.forEach(function (rule) {
-  rule.check = loadRule(rule.name);
-});
+var RULES = (function (list) {
+  return list.map(function (rule) {
+    rule.check = require('./rules/' + rule.name);
+    return rule;
+  });
+}(require('./rules/rules.json')));
 
 
 /**
@@ -26,14 +19,12 @@ RULES.forEach(function (rule) {
  * @return {Object}
  */
 var addLoc = function (loc1, loc2) {
-  var loc = {};
-  if (loc1.line != null && loc2.line != null) {
-    loc.line = loc1.line + loc2.line;
-  }
-  if (loc1.column != null && loc2.column != null) {
-    loc.column = loc1.column + loc2.column;
-  }
-  return loc;
+  return ['line', 'column'].reduce(function (loc, attr) {
+    if (loc1[attr] != null && loc2[attr] != null) {
+      loc[attr] = loc1[attr] + loc2[attr];
+    }
+    return loc;
+  }, {});
 };
 
 
