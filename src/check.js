@@ -11,19 +11,19 @@ var RULES = (function (list) {
 
 
 /**
- * Add locations together.
- * If an attribute is not set in either one of locations, it is skipped from result.
+ * Add positions together.
+ * If an attribute is not set in either one of positions, it is skipped from result.
  *
- * @arg {Object} loc1
- * @arg {Object} loc2
- * @return {Object}
+ * @arg {Position} pos1
+ * @arg {Position} pos2
+ * @return {Position}
  */
-var addLoc = function (loc1, loc2) {
-  return ['line', 'column'].reduce(function (loc, attr) {
-    if (loc1[attr] != null && loc2[attr] != null) {
-      loc[attr] = loc1[attr] + loc2[attr];
+var addPositions = function (pos1, pos2) {
+  return ['line', 'column'].reduce(function (pos, attr) {
+    if (pos1[attr] != null && pos2[attr] != null) {
+      pos[attr] = pos1[attr] + pos2[attr];
     }
-    return loc;
+    return pos;
   }, {});
 };
 
@@ -31,20 +31,20 @@ var addLoc = function (loc1, loc2) {
 /**
  * Check that comments conform to the rules.
  *
- * @arg {Array} Array of comments.
- * @return {Object.<message, loc>[]} Array of messages with corresponding locations.
+ * @arg {Comment[]} comments - Array of comments.
+ * @return {{message: string, position: Position}[]} Array of messages with corresponding positions.
  */
 var check = function (comments) {
   var messages = [];
 
   comments.forEach(function (comment) {
-    var shiftLoc = addLoc.bind(null, comment.loc.start);
+    var shiftPosition = addPositions.bind(null, comment.loc.start);
 
     RULES.forEach(function (rule) {
-      rule.check(comment.value, function (loc) {
+      rule.check(comment.value, function (pos) {
         messages.push({
           message: rule.message,
-          loc: shiftLoc(loc)
+          position: shiftPosition(pos)
         });
       });
     });
