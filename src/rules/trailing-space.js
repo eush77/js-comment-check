@@ -1,8 +1,11 @@
-module.exports = function (lines, report) {
-  lines.forEach(function (line, index) {
+/**
+ * @type {RuleChecker}
+ */
+module.exports = function (comment, report) {
+  comment.lines.forEach(function (line, index) {
     if (/\s$/.test(line)) {
       report({
-        line: index
+        line: comment.position.line + index
       });
     }
   });
