@@ -11,7 +11,7 @@
  * Rule checker function.
  *
  * @callback RuleChecker
- * @arg {string} comment - Comment body.
+ * @arg {string[]} lines - Comment body.
  * @arg {function(Position)} report - Callback to report if rule is violated.
  */
 

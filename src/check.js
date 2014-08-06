@@ -29,10 +29,10 @@ var check = function (comments) {
   var messages = [];
 
   comments.forEach(function (comment) {
-    var shiftPosition = addPositions.bind(null, comment.loc.start);
+    var shiftPosition = addPositions.bind(null, comment.position);
 
     rules.forEach(function (rule) {
-      rule.check(comment.value, function (pos) {
+      rule.check(comment.lines, function (pos) {
         messages.push({
           message: rule.message,
           position: shiftPosition(pos)
