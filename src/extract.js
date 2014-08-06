@@ -157,7 +157,7 @@ var recognizeFormat = (function () {
           });
         }
         line = line.slice(asterisk + 1);
-        if (line[0] != ' ') {
+        if (line && line[0] != ' ') {
           reportHere('no space after "*".', {
             line: pos.line,
             column: asterisk
