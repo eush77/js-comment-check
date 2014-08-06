@@ -129,7 +129,8 @@ var recognizeFormat = (function () {
       }
 
       if (lines.slice(-1) != spacing) {
-        reportHere('should end with "*/" indented with ' + spacing.length + ' spaces.', {
+        var s = (spacing.length == 1) ? '' : 's';
+        reportHere('should end with "*/" indented with ' + spacing.length + ' space' + s + '.', {
           line: loc.end.line
         });
       }
@@ -143,8 +144,7 @@ var recognizeFormat = (function () {
           reportHere('asterisk "*" not found.', {
             line: pos.line + index
           });
-          // This does not change anything, but it says that "-1" is intentional.
-          asterisk = -1;
+          // asterisk == -1 at this point.
         }
         else if (!/^ +$/.test(line.slice(0, asterisk))) {
           reportHere('there should be spaces and spaces only before the first "*".', {
