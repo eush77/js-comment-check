@@ -1,13 +1,4 @@
-/**
- * List of rules to apply.
- * @readonly
- */
-var RULES = (function (list) {
-  return list.map(function (rule) {
-    rule.check = require('./rules/' + rule.name);
-    return rule;
-  });
-}(require('./rules/rules.json')));
+var rules = require('./rules');
 
 
 /**
@@ -40,7 +31,7 @@ var check = function (comments) {
   comments.forEach(function (comment) {
     var shiftPosition = addPositions.bind(null, comment.loc.start);
 
-    RULES.forEach(function (rule) {
+    rules.forEach(function (rule) {
       rule.check(comment.value, function (pos) {
         messages.push({
           message: rule.message,
