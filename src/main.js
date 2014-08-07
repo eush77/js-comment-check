@@ -8,17 +8,25 @@ var extract = require('./extract'),
  * The only difference is "fn" bound method that serves as a reporting callback meant to be passed.
  *
  * @constructor
+ * @arg {number} [limit=Infinity] - Maximal number of messages to save,
+ *                                  others will be silently ignored.
  */
-var MessageArrayReporter = function () {
+var MessageArrayReporter = function (limit) {
+  if (limit == null) {
+    limit = Infinity;
+  }
+
   var self = [];
 
   return Object.defineProperty(self, 'fn', {
     enumerable: true,
     value: function (message, position) {
-      self.push({
-        message: message,
-        position: position
-      });
+      if (self.length < limit) {
+        self.push({
+          message: message,
+          position: position
+        });
+      }
     }
   });
 };
@@ -27,11 +35,18 @@ var MessageArrayReporter = function () {
 /**
  * Check comments in the code for rule violations.
  *
+ * Valid options:
+ *   - limit: maximal number of messages to return,
+ *       note that messages may appear out of order (still sorted though).
+ *
  * @arg {string} code - JavaScript code.
+ * @arg {Object} [options]
  * @return {{message: string, position: Position}[]} Array of messages, sorted by position.
  */
-var checkComments = function (code) {
-  var reporter = new MessageArrayReporter();
+var checkComments = function (code, options) {
+  options = options || {};
+
+  var reporter = new MessageArrayReporter(options.limit);
 
   var comments = extract(code, reporter.fn);
   check(comments, reporter.fn);
