@@ -23,7 +23,15 @@
  */
 module.exports = [
   {
-    message: 'Trailing space.',
-    check: require('./rules/trailing-space')
+    message: 'Unconventional whitespace (only spaces and newlines allowed).',
+    check: require('./rules/whitespace').unconventionalWhitespace
+  },
+  {
+    message: 'Several spaces in a row between words.',
+    check: require('./rules/whitespace').spacesInARow
+  },
+  {
+    message: 'Wrong indentation.',
+    check: require('./rules/whitespace').indentation
   },
 ];

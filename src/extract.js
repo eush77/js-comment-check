@@ -74,7 +74,7 @@ var recognizeFormat = (function () {
       };
 
       var lines = comment.split('\n').map(function (line, index) {
-        if (line[0] != ' ') {
+        if (line && line[0] != ' ') {
           report('Inline format violation: no space after "//".', {
             line: pos.line + index,
             column: pos.column - 1
