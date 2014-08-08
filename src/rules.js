@@ -34,7 +34,7 @@ module.exports = [
   },
   {
     name: 'indentation',
-    message: 'Wrong indentation.',
+    message: 'Unexpected indentation.',
     check: require('./rules/whitespace').indentation
   },
 ];

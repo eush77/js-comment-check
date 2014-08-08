@@ -38,24 +38,20 @@ exports.spacesInARow = function (comment, report) {
 
 /**
  * Check indentation inside multiline comments.
- *   1. If adjacent lines are indented, indentation sizes must be equal.
- *   2. If previous line is empty or nonexistent, indentation is forbidden.
+ * The only rule to be checked is this:
+ *   1. If previous line is empty or nonexistent, indentation is forbidden.
  *
  * @type {RuleChecker}
  */
 exports.indentation = function (comment, report) {
-  var previousIndent, previousLength;
-
-  comment.lines.forEach(function (line, lineIndex) {
-    var indent = line.match(/^\s*/)[0].length;
-    if (previousIndent && indent && indent != previousIndent ||
-        !previousLength && indent) {
+  comment.lines.reduce(function (firstLine, line, lineIndex) {
+    if (firstLine && line[0] == ' ') {
       report({
         line: comment.position.line + lineIndex
       });
     }
 
-    previousIndent = indent;
-    previousLength = line.length;
-  });
+    // Pass the flag to the next iteration.
+    return !line.length;
+  }, true);
 };
