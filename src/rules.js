@@ -23,14 +23,17 @@
  */
 module.exports = [
   {
+    name: 'unconventional-whitespace',
     message: 'Unconventional whitespace (only spaces and newlines allowed).',
     check: require('./rules/whitespace').unconventionalWhitespace
   },
   {
+    name: 'spaces-in-a-row',
     message: 'Several spaces in a row between words.',
     check: require('./rules/whitespace').spacesInARow
   },
   {
+    name: 'indentation',
     message: 'Wrong indentation.',
     check: require('./rules/whitespace').indentation
   },
