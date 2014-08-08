@@ -2,6 +2,7 @@
  * Rule to apply.
  *
  * @typedef {Object} Rule
+ * @property {string} name - Rule name, must be url-safe (@see RFC 3986, section 2.3).
  * @property {string} message - Rule message to be shown on violation.
  * @property {RuleChecker} check - Function that checks for violations.
  */
