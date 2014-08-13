@@ -1,10 +1,11 @@
 var extract = require('../src/extract'),
+    format = require('../src/format'),
     whitespace = require('../src/rules/whitespace');
 
 var fs = require('fs');
 
 
-var comments = extract(fs.readFileSync(__filename).toString());
+var comments = format(extract(fs.readFileSync(__filename).toString()));
 
 
 var decode = function (comment) {
@@ -67,7 +68,7 @@ describe('Whitespace', function () {
   });
 
   it('should forbid unexpected indentation', function () {
-    var itLine = 69;
+    var itLine = 70;
 
     var positions = [];
 
