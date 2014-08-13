@@ -2,6 +2,8 @@ var extract = require('../src/extract'),
     format = require('../src/format'),
     whitespace = require('../src/rules/whitespace');
 
+var stackTrace = require('stack-trace');
+
 var fs = require('fs');
 
 
@@ -68,7 +70,7 @@ describe('Whitespace', function () {
   });
 
   it('should forbid unexpected indentation', function () {
-    var itLine = 70;
+    var itLine = stackTrace.get()[0].getLineNumber() - 1;
 
     var positions = [];
 

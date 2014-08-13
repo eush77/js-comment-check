@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "mocha": "^1.21.4",
-    "should": "^4.0.4"
+    "should": "^4.0.4",
+    "stack-trace": "0.0.9"
   }
 }
