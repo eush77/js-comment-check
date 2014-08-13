@@ -10,6 +10,11 @@ var fs = require('fs');
 var comments = format(extract(fs.readFileSync(__filename).toString()));
 
 
+var withLineNumber = function (proc) {
+  return proc(stackTrace.get()[1].getLineNumber() + 1);
+};
+
+
 var decode = function (comment) {
   comment.lines = comment.lines.map(function (string) {
     if (string.indexOf('"') >= 0) {
@@ -22,83 +27,98 @@ var decode = function (comment) {
 };
 
 
-var ColumnArrayReporter = function () {
-  var columns = [];
-
-  return Object.defineProperty(columns, 'fn', {
-    value: function (position) {
-      columns.push(position.column);
-    }
-  });
+var positions = function (ruleChecker, comment) {
+  var positions = [];
+  ruleChecker(comment, [].push.bind(positions));
+  return positions;
 };
 
 
 describe('Whitespace', function () {
   it('should forbid whitespace characters other than plain spaces', function () {
-    var columns = new ColumnArrayReporter();
+    withLineNumber(function (line) {
+      // one tab\t, two tabs\t\t, three tabs and space in between\t\t \t - tabs
+      positions(whitespace.unconventionalWhitespace, decode(comments.shift()))
+      .should.eql([{line: line, column: 16},
+                   {line: line, column: 27},
+                   {line: line, column: 28},
+                   {line: line, column: 62},
+                   {line: line, column: 63},
+                   {line: line, column: 65}]);
+    });
 
-    // one tab\t, two tabs\t\t, three tabs and space in between\t\t \t - tabs
-    columns.splice(0, Infinity);
-    whitespace.unconventionalWhitespace(decode(comments.shift()), columns.fn);
-    columns.should.eql([14, 25, 26, 60, 61, 63]);
+    withLineNumber(function (line) {
+      // vertical tab\x0b, form feed\f, carriage return\r - other unconventional ascii7
+      positions(whitespace.unconventionalWhitespace, decode(comments.shift()))
+      .should.eql([{line: line, column: 21},
+                   {line: line, column: 33},
+                   {line: line, column: 51}]);
+    });
 
-    // vertical tab\x0b, form feed\f, carriage return\r - other unconventional ascii7
-    columns.splice(0, Infinity);
-    whitespace.unconventionalWhitespace(decode(comments.shift()), columns.fn);
-    columns.should.eql([19, 31, 49]);
+    withLineNumber(function (line) {
+      // nbsp\xa0, ensp\u2002, emsp\u2003, ideographic space\u3000 - selected unicode space
+      positions(whitespace.unconventionalWhitespace, decode(comments.shift()))
+      .should.eql([{line: line, column: 13},
+                   {line: line, column: 20},
+                   {line: line, column: 27},
+                   {line: line, column: 47}]);
+    });
 
-    // nbsp\xa0, ensp\u2002, emsp\u2003, ideographic space\u3000 - selected unicode space
-    columns.splice(0, Infinity);
-    whitespace.unconventionalWhitespace(decode(comments.shift()), columns.fn);
-    columns.should.eql([11, 18, 25, 45]);
-
-    /**
-     * \t\x0b\f\r\xa0\u2002\u2003\u3000
-     */
-    columns.splice(0, Infinity);
-    whitespace.unconventionalWhitespace(decode(comments.shift()), columns.fn);
-    columns.should.eql([7, 8, 9, 10, 11, 12, 13, 14]);
+    withLineNumber(function (line) {
+      /**
+       * \t\x0b\f\r\xa0\u2002\u2003\u3000
+       */
+      positions(whitespace.unconventionalWhitespace, decode(comments.shift()))
+      .should.eql([{line: line + 1, column: 9},
+                   {line: line + 1, column: 10},
+                   {line: line + 1, column: 11},
+                   {line: line + 1, column: 12},
+                   {line: line + 1, column: 13},
+                   {line: line + 1, column: 14},
+                   {line: line + 1, column: 15},
+                   {line: line + 1, column: 16}]);
+    });
   });
 
   it('should forbid more than a single space between words', function () {
-    var columns = new ColumnArrayReporter();
-
-    // More  than   one    space, certainly!
-    columns.splice(0, Infinity);
-    whitespace.spacesInARow(comments.shift(), columns.fn);
-    columns.should.eql([11, 17, 23]);
+    withLineNumber(function (line) {
+      // More  than   one    space, certainly!
+      positions(whitespace.spacesInARow, comments.shift())
+      .should.eql([{line: line, column: 13},
+                   {line: line, column: 19},
+                   {line: line, column: 25}]);
+    });
   });
 
   it('should forbid unexpected indentation', function () {
-    var itLine = stackTrace.get()[0].getLineNumber() - 1;
+    withLineNumber(function (line) {
+      //  Two spaces in the beginning of this row - wrong.
+      positions(whitespace.indentation, comments.shift())
+      .should.eql([{line: line}]);
+    });
 
-    var positions = [];
+    withLineNumber(function (line) {
+      // This line's indentation is OK.
+      //   * Item 1.
+      //   * Item 2.
+      //      - Inner item.
+      //
+      //      - WRONG.
+      //   * Item 3.
+      //
+      //   * WRONG.
+      //
+      positions(whitespace.indentation, comments.shift())
+      .should.eql([{line: line + 5},
+                   {line: line + 8}]);
+    });
 
-    //  Two spaces in the beginning of this row - wrong.
-    positions.splice(0, Infinity);
-    whitespace.indentation(comments.shift(), [].push.bind(positions));
-    positions.should.eql([{line: itLine + 5}]);
-
-    // This line's indentation is OK.
-    //   * Item 1.
-    //   * Item 2.
-    //      - Inner item.
-    //
-    //      - WRONG.
-    //   * Item 3.
-    //
-    //   * WRONG.
-    //
-    positions.splice(0, Infinity);
-    whitespace.indentation(comments.shift(), [].push.bind(positions));
-    positions.should.eql([{line: itLine + 15},
-                          {line: itLine + 18}]);
-
-    /**
-     *  WRONG
-     */
-    positions.splice(0, Infinity);
-    whitespace.indentation(comments.shift(), [].push.bind(positions));
-    positions.should.eql([{line: itLine + 26}]);
+    withLineNumber(function (line) {
+      /**
+       *  WRONG
+       */
+      positions(whitespace.indentation, comments.shift())
+      .should.eql([{line: line + 1}]);
+    });
   });
 });
