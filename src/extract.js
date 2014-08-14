@@ -1,4 +1,3 @@
-
 var esprima = require('esprima');
 
 
@@ -18,15 +17,14 @@ var esprima = require('esprima');
  * Location - position range.
  *
  * @typedef {Object} Location
- * @property {Position} start
- * @property {Position} end
+ * @property {Position} start - Column number must be set.
+ * @property {Position} end - Column number must be set.
  */
 
 
 /**
  * Extract comments from code.
  * Each comment is represented by a string within its usual comment delimiters.
- * Returned location always contains both line and column info.
  *
  * @arg {string} code - JavaScript code.
  * @return {{text: string, loc: Location}[]}
