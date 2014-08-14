@@ -1,5 +1,5 @@
 var extract = require('../src/extract'),
-    format = require('../src/format'),
+    parseFormat = require('../src/parse-format'),
     whitespace = require('../src/rules/whitespace');
 
 var stackTrace = require('stack-trace');
@@ -14,7 +14,7 @@ var fs = require('fs');
  * Since the purpose of the tests described here is to test whitespace-specific rules,
  *   these comments are parsed first according to the format.
  */
-var comments = format(extract(fs.readFileSync(__filename).toString()).filter(function (comment) {
+var comments = parseFormat(extract(fs.readFileSync(__filename).toString()).filter(function (comment) {
   return comment.text[2] == '!';
 }).map(function (comment) {
   comment.text = comment.text.slice(0, 2) + comment.text.slice(3);

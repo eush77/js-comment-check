@@ -1,5 +1,5 @@
 var extract = require('./extract'),
-    format = require('./format'),
+    parseFormat = require('./parse-format'),
     check = require('./check');
 
 
@@ -49,7 +49,7 @@ var checkComments = function (code, options) {
 
   var reporter = new MessageArrayReporter(options.limit);
 
-  var comments = format(extract(code, reporter.fn));
+  var comments = parseFormat(extract(code), reporter.fn);
   check(comments, reporter.fn);
 
   // Sort first by line, then by column.
