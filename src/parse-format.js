@@ -19,6 +19,15 @@
 
 
 /**
+ * @callback FormatParser
+ * @arg {string} comment
+ * @arg {Location} location
+ * @arg {function(string, Position)} report - Callback to report errors.
+ * @return {Comment}
+ */
+
+
+/**
  * Recognize what format is the comment in.
  *
  * @arg {string} comment - Raw comment body string, including delimiters.
@@ -30,12 +39,11 @@ var getFormat = function (comment) {
 
 
 /**
- * @callback FormatParser
- * @arg {string} comment
- * @arg {Location} location
- * @arg {function(string, Position)} report - Callback to report errors.
- * @return {Comment}
+ * Format -> parser mapping.
+ *
+ * @type {Object.<Format, FormatParser>}
  */
+var formatParsers = {};
 
 
 /**
@@ -43,7 +51,7 @@ var getFormat = function (comment) {
  *
  * @type {FormatParser}
  */
-var parseInlineComment = function (comment, location, report) {
+formatParsers['inline'] = function (comment, location, report) {
   if (comment[2] == ' ' || comment[2] == null) {
     comment = comment.slice(3);
   }
@@ -71,7 +79,7 @@ var parseInlineComment = function (comment, location, report) {
  *
  * @type {FormatParser}
  */
-var parseJsdocComment = function (comment, location, report) {
+formatParsers['jsdoc'] = function (comment, location, report) {
   report = (function () {
     var r = report;
     return function (message, position) {
@@ -159,18 +167,6 @@ var parseJsdocComment = function (comment, location, report) {
 
 
 /**
- * Format -> parser mapping.
- *
- * @type {Object.<Format, FormatParser>}
- * @readonly
- */
-var parsers = {
-  'inline': parseInlineComment,
-  'jsdoc': parseJsdocComment,
-};
-
-
-/**
  * Squash comment stream, whenever possible.
  *
  * @arg {Comment[]} comments
@@ -234,7 +230,7 @@ var parseFormat = function (comments, report, options) {
 
   comments = comments.map(function (comment) {
     var format = getFormat(comment.text);
-    return parsers[format](comment.text, comment.loc, report);
+    return formatParsers[format](comment.text, comment.loc, report);
   });
 
   return options.squash ? squash(comments) : comments;
