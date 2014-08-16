@@ -3,7 +3,10 @@ var extract = require('../src/extract'),
     whitespace = require('../src/rules/whitespace'),
     advance = require('../src/util').advance;
 
-var stackTrace = require('stack-trace');
+var stackTrace = require('stack-trace'),
+    _ = {
+      compose: require('lodash.compose')
+    };
 
 var fs = require('fs');
 
@@ -72,9 +75,7 @@ var decodeComment = function (comment) {
  */
 var positions = function (ruleChecker, comment) {
   var positions = [];
-  ruleChecker(comment, function (position) {
-    positions.push(advance(position));
-  });
+  ruleChecker(comment, _.compose([].push.bind(positions), advance));
   return positions;
 };
 
