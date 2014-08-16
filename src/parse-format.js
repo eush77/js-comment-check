@@ -10,12 +10,11 @@
  * Comment format.
  * Possible values:
  *   - inline
+ *   - inline-block
  *   - jsdoc
  *
  * @typedef {string} Format
  */
-
-// TODO: Add support for one-line block comments.
 
 
 /**
@@ -34,7 +33,15 @@
  * @return {Format}
  */
 var getFormat = function (comment) {
-  return (comment.slice(0, 2) == '//') ? 'inline' : 'jsdoc';
+  if (comment.slice(0, 2) == '//') {
+    return 'inline';
+  }
+  else if (comment.indexOf('\n') < 0) {
+    return 'inline-block';
+  }
+  else {
+    return 'jsdoc';
+  }
 };
 
 
@@ -70,6 +77,63 @@ formatParsers['inline'] = function (comment, location, report) {
       line: location.start.line,
       column: location.start.column + 3
     }
+  };
+};
+
+
+/**
+ * Format: inline-block.
+ *
+ * @type {FormatParser}
+ */
+formatParsers['inline-block'] = function (comment, location, report) {
+  report = (function () {
+    var r = report;
+    return function (message, position) {
+      return r('Inline-block format violation: ' + message, position);
+    };
+  }());
+
+  comment = comment.slice(2, -2);
+  var position = {
+    line: location.start.line,
+    column: location.start.column + 2
+  };
+
+  var trimmed = comment.trim();
+
+  if (!trimmed.length) {
+    report('can\'t be empty.', position);
+    comment = '';
+  }
+
+  if (comment[0] != ' ') {
+    report('no space after "/*".', position);
+  }
+  else {
+    if (comment[1] == ' ') {
+      report('more that a single space after "/*".', position);
+    }
+    position.column += comment.match(/^\s+/)[0].length;
+  }
+
+  if (comment.slice(-1) != ' ') {
+    report('no space before "*/".', {
+      line: position.line,
+      column: position.column + comment.length
+    });
+  }
+  else if (comment.slice(-2) == '  ') {
+    report('more than a single space before "*/".', {
+      line: position.line,
+      column: position.column + trimmed.length
+    });
+  }
+
+  return {
+    format: 'inline-block',
+    lines: [trimmed],
+    position: position
   };
 };
 
