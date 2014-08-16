@@ -72,9 +72,12 @@ var parseInlineComment = function (comment, location, report) {
  * @type {FormatParser}
  */
 var parseJsdocComment = function (comment, location, report) {
-  report = function (message, position) {
-    return report('JSDoc format violation: ' + message, position);
-  };
+  report = (function () {
+    var r = report;
+    return function (message, position) {
+      return r('JSDoc format violation: ' + message, position);
+    };
+  }());
 
   var pos = {
     line: location.start.line,
