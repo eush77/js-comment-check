@@ -1,3 +1,6 @@
+var advance = require('./util').advance;
+
+
 /**
  * @typedef {Object} Comment
  * @property {Format} format
@@ -63,20 +66,18 @@ formatParsers['inline'] = function (comment, location, report) {
     comment = comment.slice(3);
   }
   else {
-    report('Inline format violation: no space after "//".', {
-      line: location.start.line,
-      column: location.start.column + 2
-    });
+    report('Inline format violation: no space after "//".', advance(location.start, {
+      column: 2
+    }));
     comment = comment.slice(2);
   }
 
   return {
     format: 'inline',
     lines: [comment],
-    position: {
-      line: location.start.line,
-      column: location.start.column + 3
-    }
+    position: advance(location.start, {
+      column: 3
+    }),
   };
 };
 
@@ -95,10 +96,9 @@ formatParsers['inline-block'] = function (comment, location, report) {
   }());
 
   comment = comment.slice(2, -2);
-  var position = {
-    line: location.start.line,
-    column: location.start.column + 2
-  };
+  var position = advance(location.start, {
+    column: 2
+  });
 
   var trimmed = comment.trim();
 
@@ -118,16 +118,14 @@ formatParsers['inline-block'] = function (comment, location, report) {
   }
 
   if (comment.slice(-1) != ' ') {
-    report('no space before "*/".', {
-      line: position.line,
-      column: position.column + comment.length
-    });
+    report('no space before "*/".', advance(position, {
+      column: comment.length
+    }));
   }
   else if (comment.slice(-2) == '  ') {
-    report('more than a single space before "*/".', {
-      line: position.line,
-      column: position.column + trimmed.length
-    });
+    report('more than a single space before "*/".', advance(position, {
+      column: trimmed.length
+    }));
   }
 
   return {
@@ -151,10 +149,9 @@ formatParsers['jsdoc'] = function (comment, location, report) {
     };
   }());
 
-  var pos = {
-    line: location.start.line,
-    column: location.start.column + 3
-  };
+  var pos = advance(location.start, {
+    column: 3
+  });
   var spacing = new Array(pos.column - 1).join(' ');
 
   var lines = comment.slice(2, -2).split('\n');
@@ -169,10 +166,9 @@ formatParsers['jsdoc'] = function (comment, location, report) {
       lines[0] = spacing + '*' + lines[0];
     }
     else {
-      report('first comment line should end after "/**".', {
-        line: location.start.line,
-        column: location.start.column + 3
-      });
+      report('first comment line should end after "/**".', advance(location.start, {
+        column: 3
+      }));
       lines[0] = spacing + lines[0];
     }
   }
@@ -252,10 +248,9 @@ var squash = function (comments) {
       }
       if (comment.format == 'inline') {
         latestComment = comment;
-        latestPosition = {
-          line: comment.position.line + comment.lines.length - 1,
-          column: comment.position.column
-        };
+        latestPosition = advance(comment.position, {
+          line: comment.lines.length - 1,
+        });
       }
       else {
         squashed.push(comment);

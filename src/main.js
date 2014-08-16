@@ -1,6 +1,7 @@
 var extract = require('./extract'),
     parseFormat = require('./parse-format'),
-    check = require('./check');
+    check = require('./check'),
+    advance = require('./util').advance;
 
 
 /**
@@ -23,9 +24,10 @@ var MessageArrayReporter = function (limit) {
     enumerable: true,
     value: function (message, position) {
       if (self.length < limit) {
+        // Copy position in order to protect from its future mutations.
         self.push({
           message: message,
-          position: position
+          position: advance(position)
         });
       }
     }

@@ -1,6 +1,7 @@
 var extract = require('../src/extract'),
     parseFormat = require('../src/parse-format'),
-    whitespace = require('../src/rules/whitespace');
+    whitespace = require('../src/rules/whitespace'),
+    advance = require('../src/util').advance;
 
 var stackTrace = require('stack-trace');
 
@@ -71,7 +72,9 @@ var decodeComment = function (comment) {
  */
 var positions = function (ruleChecker, comment) {
   var positions = [];
-  ruleChecker(comment, [].push.bind(positions));
+  ruleChecker(comment, function (position) {
+    positions.push(advance(position));
+  });
   return positions;
 };
 

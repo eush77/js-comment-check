@@ -1,3 +1,6 @@
+var advance = require('../util').advance;
+
+
 /**
  * Forbid whitespace characters other than plain spaces.
  *
@@ -5,12 +8,12 @@
  */
 exports.unconventionalWhitespace = function (comment, report) {
   comment.lines.forEach(function (line, lineIndex) {
-    line.replace(/\s/g, function (match, index) {
+    line.replace(/\s/g, function (match, columnIndex) {
       if (match != ' ') {
-        report({
-          line: comment.position.line + lineIndex,
-          column: comment.position.column + index
-        });
+        report(advance(comment.position, {
+          line: lineIndex,
+          column: columnIndex
+        }));
       }
     });
   });
@@ -26,11 +29,11 @@ exports.spacesInARow = function (comment, report) {
   comment.lines.forEach(function (line, lineIndex) {
     var indent = line.match(/^\s*/)[0].length;
 
-    line.trim().replace(/\s{2,}/g, function (match, index) {
-      report({
-        line: comment.position.line + lineIndex,
-        column: comment.position.column + indent + index
-      });
+    line.trim().replace(/\s{2,}/g, function (match, columnIndex) {
+      report(advance(comment.position, {
+        line: lineIndex,
+        column: indent + columnIndex
+      }));
     });
   });
 };
