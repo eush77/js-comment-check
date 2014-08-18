@@ -1,4 +1,6 @@
-var advance = require('./util').advance;
+var advance = function () {
+  return require('./util').advance.apply(this, arguments);
+};
 
 
 /**
