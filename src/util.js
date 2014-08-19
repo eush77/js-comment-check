@@ -1,6 +1,4 @@
-var extract = require('../src/extract'),
-    parseFormat = require('../src/parse-format'),
-    stackTrace = require('stack-trace');
+var stackTrace = require('stack-trace');
 
 var _ = {
   compose: require('lodash.compose')
@@ -36,34 +34,6 @@ exports.advance = function (position, increment) {
   }
 
   return result;
-};
-
-
-/**
- * Extract comments from file and leave only those that start with "/*!" or "//!".
- * The bang mark itself is contracted from the output.
- *
- * Valid options:
- *   - parseFormat: boolean, defaults to true.
- *
- * @arg {string} filename
- * @arg {Object} [options]
- * @return {Comment[] | string[]} Depending on parseFormat option.
- */
-exports.extractMarkedComments = function (filename, options) {
-  options = options || {};
-  if (options.parseFormat == null) {
-    options.parseFormat = true;
-  }
-
-  var comments = extract(fs.readFileSync(filename).toString()).filter(function (comment) {
-    return comment.text[2] == '!';
-  }).map(function (comment) {
-    comment.text = comment.text.slice(0, 2) + comment.text.slice(3);
-    return comment;
-  });
-
-  return options.parseFormat ? parseFormat(comments) : comments;
 };
 
 
@@ -118,4 +88,38 @@ exports.positions = function (ruleChecker, comment) {
   var positions = [];
   ruleChecker(comment, _.compose([].push.bind(positions), exports.advance));
   return positions;
+};
+
+
+// These statements moved further in file to allow parseFormat use functions defined earlier,
+//   such as 'util.advance'.
+var extract = require('../src/extract'),
+    parseFormat = require('../src/parse-format');
+
+
+/**
+ * Extract comments from file and leave only those that start with "/*!" or "//!".
+ * The bang mark itself is contracted from the output.
+ *
+ * Valid options:
+ *   - parseFormat: boolean, defaults to true.
+ *
+ * @arg {string} filename
+ * @arg {Object} [options]
+ * @return {Comment[] | string[]} Depending on parseFormat option.
+ */
+exports.extractMarkedComments = function (filename, options) {
+  options = options || {};
+  if (options.parseFormat == null) {
+    options.parseFormat = true;
+  }
+
+  var comments = extract(fs.readFileSync(filename).toString()).filter(function (comment) {
+    return comment.text[2] == '!';
+  }).map(function (comment) {
+    comment.text = comment.text.slice(0, 2) + comment.text.slice(3);
+    return comment;
+  });
+
+  return options.parseFormat ? parseFormat(comments) : comments;
 };
