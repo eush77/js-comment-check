@@ -1,3 +1,33 @@
+/**
+ * Cast comments to the right format.
+ *
+ * Valid options:
+ *   - squash [= true]: whether squash comment stream after parsing or not.
+ *
+ * @arg {{text: string, loc: Location}[] | {text: string, loc: Location}} comments
+ * @arg {function(string, Position)} report - Callback to report errors.
+ * @arg {Object} [options]
+ * @return {Comment[]}
+ */
+module.exports = function (comments, report, options) {
+  options = options || {};
+  if (options.squash == null) {
+    options.squash = true;
+  }
+
+  if (!Array.isArray(comments)) {
+    comments = [comments];
+  }
+
+  comments = comments.map(function (comment) {
+    var format = getFormat(comment.text);
+    return formatParsers[format](comment.text, comment.loc, report);
+  });
+
+  return options.squash ? squash(comments) : comments;
+};
+
+
 var advance = require('./util').advance;
 
 
@@ -98,36 +128,3 @@ var squash = function (comments) {
   }
   return squashed;
 };
-
-
-/**
- * Cast comments to the right format.
- *
- * Valid options:
- *   - squash [= true]: whether squash comment stream after parsing or not.
- *
- * @arg {{text: string, loc: Location}[] | {text: string, loc: Location}} comments
- * @arg {function(string, Position)} report - Callback to report errors.
- * @arg {Object} [options]
- * @return {Comment[]}
- */
-var parseFormat = function (comments, report, options) {
-  options = options || {};
-  if (options.squash == null) {
-    options.squash = true;
-  }
-
-  if (!Array.isArray(comments)) {
-    comments = [comments];
-  }
-
-  comments = comments.map(function (comment) {
-    var format = getFormat(comment.text);
-    return formatParsers[format](comment.text, comment.loc, report);
-  });
-
-  return options.squash ? squash(comments) : comments;
-};
-
-
-module.exports = parseFormat;
