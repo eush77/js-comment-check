@@ -106,7 +106,7 @@ var extract = require('../src/extract'),
  *
  * @arg {string} filename
  * @arg {Object} [options]
- * @return {Comment[] | string[]} Depending on parseFormat option.
+ * @return {Comment[] | {text: string, loc: Location}[]} Depending on parseFormat option.
  */
 exports.extractMarkedComments = function (filename, options) {
   options = options || {};
