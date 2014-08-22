@@ -93,8 +93,8 @@ exports.positions = function (ruleChecker, comment) {
 
 // These statements moved further in file to allow parseFormat use functions defined earlier,
 //   such as 'util.advance'.
-var extract = require('../src/extract'),
-    parseFormat = require('../src/parse-format');
+var extract = require('../src/extract')
+  , parseFormat = require('../src/parse-format');
 
 
 /**

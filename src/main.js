@@ -1,7 +1,7 @@
-var extract = require('./extract'),
-    parseFormat = require('./parse-format'),
-    check = require('./check'),
-    advance = require('./util').advance;
+var extract = require('./extract')
+  , parseFormat = require('./parse-format')
+  , check = require('./check')
+  , advance = require('./util').advance;
 
 
 /**

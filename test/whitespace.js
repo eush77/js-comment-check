@@ -1,5 +1,5 @@
-var whitespace = require('../src/rules/whitespace'),
-    util = require('../src/util');
+var whitespace = require('../src/rules/whitespace')
+  , util = require('../src/util');
 
 
 /**
