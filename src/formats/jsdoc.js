@@ -1,19 +1,37 @@
 var advance = require('../util').advance;
 
 
+var addPrefix = function (message) {
+  return 'JSDoc format violation: ' + message;
+};
+
+
+/**
+ * Error messages.
+ */
+var messages = {
+  tooShort: addPrefix('should be at least three lines long'),
+  wrongStartingSequence: addPrefix('should start with "/**".'),
+  startingSequenceNotAtLineEnd: addPrefix('first comment line should end after "/**".'),
+  endingSequenceIndentedNotAt: function (indent) {
+    var s = (indent == 1) ? '' : 's';
+    return addPrefix('should end with "*/" indented with ' + indent + ' space' + s + '.');
+  },
+  noAsteriskInLine: addPrefix('asterisk "*" not found.'),
+  nonSpacesBeforeAsterisk: addPrefix('there should be spaces and spaces only before the first "*".'),
+  asteriskIndentedNotAt: function (indent) {
+    return addPrefix('wrong spacing, should be ' + indent + '.');
+  },
+  noFirstSpace: addPrefix('no space after "*".')
+};
+
+
 /**
  * Format: jsdoc.
  *
  * @type {FormatParser}
  */
 module.exports = function (comment, location, report) {
-  report = (function () {
-    var r = report;
-    return function (message, position) {
-      return r('JSDoc format violation: ' + message, position);
-    };
-  }());
-
   var pos = advance(location.start, {
     column: 3
   });
@@ -22,16 +40,16 @@ module.exports = function (comment, location, report) {
   var lines = comment.slice(2, -2).split('\n');
 
   if (lines.length < 3) {
-    report('should be at least three lines long', location.start);
+    report(messages.tooShort, location.start);
   }
 
   if (lines[0] != '*') {
     if (lines[0][0] != '*') {
-      report('should start with "/**".', location.start);
+      report(messages.wrongStartingSequence, location.start);
       lines[0] = spacing + '*' + lines[0];
     }
     else {
-      report('first comment line should end after "/**".', advance(location.start, {
+      report(messages.startingSequenceNotAtLineEnd, advance(location.start, {
         column: 3
       }));
       lines[0] = spacing + lines[0];
@@ -43,8 +61,7 @@ module.exports = function (comment, location, report) {
   }
 
   if (lines.slice(-1) != spacing) {
-    var s = (spacing.length == 1) ? '' : 's';
-    report('should end with "*/" indented with ' + spacing.length + ' space' + s + '.', {
+    report(messages.endingSequenceIndentedNotAt(spacing.length), {
       line: location.end.line
     });
   }
@@ -55,24 +72,24 @@ module.exports = function (comment, location, report) {
   lines = lines.map(function (line, index) {
     var asterisk = line.indexOf('*');
     if (asterisk < 0) {
-      report('asterisk "*" not found.', {
+      report(messages.noAsteriskInLine, {
         line: pos.line + index
       });
       // asterisk == -1 at this point.
     }
     else if (!/^ +$/.test(line.slice(0, asterisk))) {
-      report('there should be spaces and spaces only before the first "*".', {
+      report(messages.nonSpacesBeforeAsterisk, {
         line: pos.line + index
       });
     }
     else if (asterisk != spacing.length) {
-      report('wrong spacing, should be ' + spacing.length + '.', {
+      report(messages.asteriskIndentedNotAt(spacing.length), {
         line: pos.line + index
       });
     }
     line = line.slice(asterisk + 1);
     if (line && line[0] != ' ') {
-      report('no space after "*".', {
+      report(messages.noFirstSpace, {
         line: pos.line,
         column: asterisk
       });
@@ -89,3 +106,6 @@ module.exports = function (comment, location, report) {
     position: pos
   };
 };
+
+
+module.exports.messages = messages;

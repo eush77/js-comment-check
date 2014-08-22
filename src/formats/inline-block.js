@@ -1,19 +1,30 @@
 var advance = require('../util').advance;
 
 
+var addPrefix = function (message) {
+  return 'Inline-block format violation: ' + message;
+};
+
+
+/**
+ * Error messages.
+ * @readonly
+ */
+var messages = {
+  empty: addPrefix('can\'t be empty.'),
+  noFirstSpace: addPrefix('no space after "/*".'),
+  extraFirstSpace: addPrefix('more that a single space after "/*".'),
+  noLastSpace: addPrefix('no space before "*/".'),
+  extraLastSpace: addPrefix('more than a single space before "*/".')
+};
+
+
 /**
  * Format: inline-block.
  *
  * @type {FormatParser}
  */
 module.exports = function (comment, location, report) {
-  report = (function () {
-    var r = report;
-    return function (message, position) {
-      return r('Inline-block format violation: ' + message, position);
-    };
-  }());
-
   comment = comment.slice(2, -2);
   var position = advance(location.start, {
     column: 2
@@ -22,27 +33,27 @@ module.exports = function (comment, location, report) {
   var trimmed = comment.trim();
 
   if (!trimmed.length) {
-    report('can\'t be empty.', position);
+    report(messages.empty, position);
     comment = '';
   }
 
   if (comment[0] != ' ') {
-    report('no space after "/*".', position);
+    report(messages.noFirstSpace, position);
   }
   else {
     if (comment[1] == ' ') {
-      report('more that a single space after "/*".', position);
+      report(messages.extraFirstSpace, position);
     }
     position.column += comment.match(/^\s+/)[0].length;
   }
 
   if (comment.slice(-1) != ' ') {
-    report('no space before "*/".', advance(position, {
+    report(messages.noLastSpace, advance(position, {
       column: comment.length
     }));
   }
   else if (comment.slice(-2) == '  ') {
-    report('more than a single space before "*/".', advance(position, {
+    report(messages.extraLastSpace, advance(position, {
       column: trimmed.length
     }));
   }
@@ -53,3 +64,6 @@ module.exports = function (comment, location, report) {
     position: position
   };
 };
+
+
+module.exports.messages = messages;

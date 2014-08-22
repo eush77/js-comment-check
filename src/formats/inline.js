@@ -2,6 +2,15 @@ var advance = require('../util').advance;
 
 
 /**
+ * Error messages.
+ * @readonly
+ */
+var messages = {
+  noFirstSpace: 'Inline format violation: no space after "//".'
+};
+
+
+/**
  * Format: inline.
  *
  * @type {FormatParser}
@@ -11,7 +20,7 @@ module.exports = function (comment, location, report) {
     comment = comment.slice(3);
   }
   else {
-    report('Inline format violation: no space after "//".', advance(location.start, {
+    report(messages.noFirstSpace, advance(location.start, {
       column: 2
     }));
     comment = comment.slice(2);
@@ -25,3 +34,6 @@ module.exports = function (comment, location, report) {
     }),
   };
 };
+
+
+module.exports.messages = messages;

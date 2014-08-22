@@ -52,6 +52,10 @@ var advance = require('./util').advance;
 
 /**
  * @callback FormatParser
+ * @property {Object.<id: string, message: string>} messages - Format messages mapping.
+ *   It is guaranteed that each thrown message is mapped to some key in this object, but
+ *   specific message IDs are entirely format-dependent.
+ *
  * @arg {string} comment
  * @arg {Location} location
  * @arg {function(string, Position)} report - Callback to report errors.
