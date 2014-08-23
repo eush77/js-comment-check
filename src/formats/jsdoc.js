@@ -10,6 +10,7 @@ var addPrefix = function (message) {
 
 /**
  * Error messages.
+ * @readonly
  */
 var messages = {
   tooShort: addPrefix('should be at least three lines long'),
