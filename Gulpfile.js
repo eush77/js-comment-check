@@ -15,7 +15,7 @@ gulp.task('lint', function () {
 
 gulp.task('test', function () {
   require('should');
-  return gulp.src('test/**/*.js')
+  return gulp.src(['test/**/*.js', '!test/test-util.js'])
              .pipe(mocha({
                reporter: 'spec'
              }));

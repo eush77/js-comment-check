@@ -1,7 +1,8 @@
 'use strict';
 /* global describe, it */
 
-var util = require('../src/util');
+var advance = require('../src/util').advance
+  , testUtil = require('./test-util');
 
 var formatParsers = {
   'inline': require('../src//formats/inline'),
@@ -15,7 +16,7 @@ var formatParsers = {
  * This variable lists them in the Array instance.
  * Individual comments are then shifted out along the way.
  */
-var comments = util.extractMarkedComments(__filename, {parseFormat: false});
+var comments = testUtil.extractMarkedComments(__filename, {parseFormat: false});
 
 
 /**
@@ -30,7 +31,7 @@ var parseTheFormat = function (formatParser, comment) {
   var output = formatParser(comment.text, comment.loc, function (message, position) {
     errors.push({
       message: message,
-      position: util.advance(position)
+      position: advance(position)
     });
   });
   return {
@@ -46,7 +47,7 @@ describe('Comment Formats', function () {
     var msg = formatParsers['inline'].messages;
 
     it('should extract comment body and location info', function () {
-      util.withLineNumber(function (line) {
+      testUtil.withLineNumber(function (line) {
         //! hello
         format(comments.shift()).should.eql({
           output: {
@@ -61,7 +62,7 @@ describe('Comment Formats', function () {
         });
       });
 
-      util.withLineNumber(function (line) {
+      testUtil.withLineNumber(function (line) {
         //!    indented
         format(comments.shift()).should.eql({
           output: {
@@ -78,7 +79,7 @@ describe('Comment Formats', function () {
     });
 
     it('should check for format conformance', function () {
-      util.withLineNumber(function (line) {
+      testUtil.withLineNumber(function (line) {
         //!tight
         format(comments.shift()).should.eql({
           output: {
@@ -106,7 +107,7 @@ describe('Comment Formats', function () {
     var msg = formatParsers['inline-block'].messages;
 
     it('should extract comment body and location info', function () {
-      util.withLineNumber(function (line) {
+      testUtil.withLineNumber(function (line) {
         /*! hello */
         format(comments.shift()).should.eql({
           output: {
@@ -123,7 +124,7 @@ describe('Comment Formats', function () {
     });
 
     it('should check for format conformance', function () {
-      util.withLineNumber(function (line) {
+      testUtil.withLineNumber(function (line) {
         /*!*/
         format(comments.shift()).should.eql({
           output: {
@@ -144,7 +145,7 @@ describe('Comment Formats', function () {
         });
       });
 
-      util.withLineNumber(function (line) {
+      testUtil.withLineNumber(function (line) {
         /*!tight*/
         format(comments.shift()).should.eql({
           output: {
@@ -171,7 +172,7 @@ describe('Comment Formats', function () {
         });
       });
 
-      util.withLineNumber(function (line) {
+      testUtil.withLineNumber(function (line) {
         /*!  two  spaces  */
         format(comments.shift()).should.eql({
           output: {
@@ -205,7 +206,7 @@ describe('Comment Formats', function () {
     var msg = formatParsers['jsdoc'].messages;
 
     it('should extract comment body and location info', function () {
-      util.withLineNumber(function (line) {
+      testUtil.withLineNumber(function (line) {
         /*!*
          * List:
          *   - first item,
@@ -232,7 +233,7 @@ describe('Comment Formats', function () {
     });
 
     it('should check for format conformance', function () {
-      util.withLineNumber(function (line) {
+      testUtil.withLineNumber(function (line) {
         /*!
       */
         format(comments.shift()).should.eql({
@@ -266,7 +267,7 @@ describe('Comment Formats', function () {
         });
       });
 
-      util.withLineNumber(function (line) {
+      testUtil.withLineNumber(function (line) {
         /*!*  im bad
         **
         #
