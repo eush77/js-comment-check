@@ -7,7 +7,7 @@
 
   "main": "src/main.js",
   "scripts": {
-    "test": "mocha"
+    "test": "gulp"
   },
 
   "homepage": "https://github.com/eush77/js-comment-check",
@@ -35,9 +35,11 @@
     "esprima": "^1.2.2"
   },
   "devDependencies": {
-    "jshint": "^2.5.4",
+    "gulp": "^3.8.7",
+    "gulp-jshint": "^1.8.4",
+    "gulp-mocha": "^1.0.0",
+    "jshint-stylish": "^0.4.0",
     "lodash.compose": "^2.4.1",
-    "mocha": "^1.21.4",
     "should": "^4.0.4",
     "stack-trace": "0.0.9"
   }
