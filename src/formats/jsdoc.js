@@ -13,10 +13,6 @@ var messages = {
   tooShort: addPrefix('should be at least three lines long'),
   wrongStartingSequence: addPrefix('should start with "/**".'),
   startingSequenceNotAtLineEnd: addPrefix('first comment line should end after "/**".'),
-  endingSequenceIndentedNotAt: function (indent) {
-    var s = (indent == 1) ? '' : 's';
-    return addPrefix('should end with "*/" indented with ' + indent + ' space' + s + '.');
-  },
   noAsteriskInLine: addPrefix('asterisk "*" not found.'),
   nonSpacesBeforeAsterisk: addPrefix('there should be spaces and spaces only before the first "*".'),
   asteriskIndentedNotAt: function (indent) {
@@ -32,79 +28,100 @@ var messages = {
  * @type {FormatParser}
  */
 module.exports = function (comment, location, report) {
-  var pos = advance(location.start, {
-    column: 3
-  });
-  var spacing = new Array(pos.column - 1).join(' ');
+  var lines = comment.split('\n');
 
-  var lines = comment.slice(2, -2).split('\n');
+  var fallbackReturnValue = {
+    format: 'jsdoc',
+    lines: [],
+    position: advance(location.start, {
+      column: 2
+    })
+  };
 
   if (lines.length < 3) {
     report(messages.tooShort, location.start);
-  }
-
-  if (lines[0] != '*') {
-    if (lines[0][0] != '*') {
-      report(messages.wrongStartingSequence, location.start);
-      lines[0] = spacing + '*' + lines[0];
-    }
-    else {
-      report(messages.startingSequenceNotAtLineEnd, advance(location.start, {
-        column: 3
-      }));
-      lines[0] = spacing + lines[0];
+    // If first and last lines are separate, then it makes sense to check them before exit.
+    if (lines.length < 2) {
+      return fallbackReturnValue;
     }
   }
-  else {
-    lines.shift();
-    pos.line += 1;
+
+  var firstLine = lines[0]
+    , lastLine = lines.slice(-1)[0];
+  lines = lines.slice(1, -1);
+
+  if (firstLine[2] != '*') {
+    report(messages.wrongStartingSequence, location.start);
+  }
+  else if (firstLine.length != 3) {
+    report(messages.startingSequenceNotAtLineEnd, advance(location.start, {
+      column: 3
+    }));
   }
 
-  if (lines.slice(-1) != spacing) {
-    report(messages.endingSequenceIndentedNotAt(spacing.length), {
-      line: location.end.line
-    });
-  }
-  else {
-    lines.pop();
-  }
+  var spacing = location.start.column + 1;
+  var bodyLines = [];
 
-  lines = lines.map(function (line, index) {
+  lines = lines.forEach(function (line, index) {
+    var lineIndex = location.start.line + index + 1;
+
     var asterisk = line.indexOf('*');
-    if (asterisk < 0) {
+    if (asterisk == -1) {
       report(messages.noAsteriskInLine, {
-        line: pos.line + index
+        line: lineIndex
       });
-      // asterisk == -1 at this point.
+      return;
     }
-    else if (!/^ +$/.test(line.slice(0, asterisk))) {
+
+    var lineSpacing = line.match(/^\s*/)[0].length;
+    if (lineSpacing != asterisk) {
       report(messages.nonSpacesBeforeAsterisk, {
-        line: pos.line + index
+        line: lineIndex,
+        column: lineSpacing
       });
     }
-    else if (asterisk != spacing.length) {
-      report(messages.asteriskIndentedNotAt(spacing.length), {
-        line: pos.line + index
-      });
-    }
-    line = line.slice(asterisk + 1);
-    if (line && line[0] != ' ') {
-      report(messages.noFirstSpace, {
-        line: pos.line,
+    if (asterisk != spacing) {
+      report(messages.asteriskIndentedNotAt(spacing), {
+        line: lineIndex,
         column: asterisk
       });
-      return line || '';
+    }
+
+    if (line[asterisk + 1] && line[asterisk + 1] != ' ') {
+      report(messages.noFirstSpace, {
+        line: lineIndex,
+        column: asterisk + 1
+      });
+      bodyLines.push(line.slice(asterisk + 1));
     }
     else {
-      return line.slice(1);
+      bodyLines.push(line.slice(asterisk + 2));
     }
   });
 
-  return {
-    format: 'jsdoc',
-    lines: lines,
-    position: pos
-  };
+  var lastLineAsterisk = lastLine.length - 2;
+  var lastLineSpacing = lastLine.match(/^\s*/)[0].length;
+  if (lastLineSpacing != lastLineAsterisk) {
+    report(messages.nonSpacesBeforeAsterisk, {
+      line: location.end.line,
+      column: lastLineSpacing
+    });
+  }
+  if (lastLineAsterisk != spacing) {
+    report(messages.asteriskIndentedNotAt(spacing), {
+      line: location.end.line,
+      column: lastLineAsterisk
+    });
+  }
+
+  return bodyLines.length
+       ? {format: 'jsdoc',
+          lines: bodyLines,
+          position: advance(location.start, {
+            line: 1,
+            column: 3
+          })}
+       : fallbackReturnValue;
 };
 
 

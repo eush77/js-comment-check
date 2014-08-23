@@ -30,37 +30,39 @@ module.exports = function (comment, location, report) {
     column: 2
   });
 
-  var trimmed = comment.trim();
-
-  if (!trimmed.length) {
+  if (!comment.length) {
     report(messages.empty, position);
-    comment = '';
-  }
-
-  if (comment[0] != ' ') {
-    report(messages.noFirstSpace, position);
   }
   else {
-    if (comment[1] == ' ') {
-      report(messages.extraFirstSpace, position);
+    if (comment[0] != ' ') {
+      report(messages.noFirstSpace, position);
     }
-    position.column += comment.match(/^\s+/)[0].length;
-  }
+    else {
+      if (comment[1] == ' ') {
+        report(messages.extraFirstSpace, position);
+      }
+      position.column += 1;
+      comment = comment.slice(1);
+    }
 
-  if (comment.slice(-1) != ' ') {
-    report(messages.noLastSpace, advance(position, {
-      column: comment.length
-    }));
-  }
-  else if (comment.slice(-2) == '  ') {
-    report(messages.extraLastSpace, advance(position, {
-      column: trimmed.length
-    }));
+    if (comment.slice(-1) != ' ') {
+      report(messages.noLastSpace, advance(position, {
+        column: comment.length
+      }));
+    }
+    else {
+      if (comment.slice(-2)[0] == ' ') {
+        report(messages.extraLastSpace, advance(position, {
+          column: comment.length - comment.match(/\s+$/)[0].length
+        }));
+      }
+      comment = comment.slice(0, -1);
+    }
   }
 
   return {
     format: 'inline-block',
-    lines: [trimmed],
+    lines: [comment],
     position: position
   };
 };
