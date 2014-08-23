@@ -18,7 +18,7 @@ var messages = {
   startingSequenceNotAtLineEnd: addPrefix('first comment line should end after "/**".'),
   noAsteriskInLine: addPrefix('asterisk "*" not found.'),
   nonSpacesBeforeAsterisk: addPrefix('there should be spaces and spaces'
-                                     + 'only before the first "*".'),
+                                     + ' only before the first "*".'),
   asteriskIndentedNotAt: function (indent) {
     return addPrefix('wrong spacing, should be ' + indent + '.');
   },
