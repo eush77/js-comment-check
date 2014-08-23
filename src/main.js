@@ -1,3 +1,5 @@
+'use strict';
+
 var extract = require('./extract')
   , parseFormat = require('./parse-format')
   , check = require('./check')

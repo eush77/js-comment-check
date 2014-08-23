@@ -1,3 +1,6 @@
+'use strict';
+
+
 /**
  * Cast comments to the right format.
  *

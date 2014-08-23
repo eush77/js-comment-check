@@ -1,3 +1,6 @@
+'use strict';
+/* global describe, it */
+
 var whitespace = require('../src/rules/whitespace')
   , util = require('../src/util');
 

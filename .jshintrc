@@ -1,0 +1,31 @@
+{
+  "node": true,
+
+  "camelcase": true,
+  "curly": true,
+  "immed": true,
+  "indent": 2, // ignored, since W015 is also included here
+  "latedef": false,
+  "newcap": true,
+  "noarg": true,
+  "nonbsp": true,
+  "nonew": true,
+  "quotmark": "single",
+  "undef": true,
+  "unused": true,
+  "strict": true,
+  "maxparams": 4,
+  "maxlen": 100,
+
+  "boss": true,
+  "eqnull": true,
+  "evil": true,
+  "laxbreak": true,
+  "laxcomma": true,
+  "sub": true,
+  "supernew": true,
+
+  "white": true,
+  "-W041": false,
+  "-W015": false
+}

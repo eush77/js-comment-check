@@ -1,3 +1,6 @@
+'use strict';
+/* global describe, it */
+
 var util = require('../src/util');
 
 var formatParsers = {

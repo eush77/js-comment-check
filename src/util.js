@@ -1,3 +1,5 @@
+'use strict';
+
 var stackTrace = require('stack-trace');
 
 var _ = {
